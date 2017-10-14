@@ -127,7 +127,14 @@ public class Deque<Item> implements Iterable<Item> {
         System.out.println("Iterated.");
         
     }
-
+    /**
+     * a inner class for Deque, this is a iterator that implements interface Iterator<>.
+     * 
+     * @author HJS
+     * 
+     * @date 2017年10月14日
+     * 
+     */
     private class MyIterator implements Iterator<Item> {
         private Node current = head;
         @Override
@@ -147,6 +154,13 @@ public class Deque<Item> implements Iterable<Item> {
             throw new java.lang.UnsupportedOperationException();
         }
     }
+    /**
+     * a inner class Node for Deque
+     * @author HJS
+     * 
+     * @date 2017年10月14日
+     * 
+     */
     private class Node {
         Item item = null;
         Node last = null;
