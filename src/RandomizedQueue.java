@@ -36,8 +36,16 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
     public void enqueue(Item item)           // add the item
     {
+        validateAdd(item);
         if (size() == items.length)  resize(2 * items.length);
         items[size++] = item;
+    }
+    /**
+     * if input parameter {@code item} is null, then throw a IllegalArgumentException.
+     */
+    private void validateAdd(Item item)
+    {
+        if(item == null)    throw new java.lang.IllegalArgumentException();
     }
     public Item dequeue()                    // remove and return a random item
     {
@@ -76,27 +84,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (iterator == null)   iterator = new MyIterator();
         return iterator;
     }
-    private class MyIterator implements Iterator<Item> {
-        private Item[] copy = items.clone();    // copy items as a new array
-        private int count = size();
-        @Override
-        public boolean hasNext() {
-            return count != 0;
-        }
-        @Override
-        public Item next() {
-            int random = StdRandom.uniform(count);
-            Item temp = copy[random];           
-            if(temp != copy[count - 1])    copy[random] = copy[count - 1];
-            copy[count - 1] = null;
-            count--;
-            return temp;
-        }
-        @Override
-        public void remove() {
-            throw new java.lang.UnsupportedOperationException();
-        }
-    }
     public static void main(String[] args)   // unit testing (optional)
     {
         RandomizedQueue<String> rq = new RandomizedQueue<>();
@@ -125,5 +112,36 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
         System.out.println();
         System.out.println("Iterated.");
+    }
+    /**
+     * a inner class for RandomizedQueue, this is a iterator that implements interface Iterator<>.
+     * 
+     * @author HJS
+     * 
+     * @date 2017Äê10ÔÂ14ÈÕ
+     * 
+     */
+    private class MyIterator implements Iterator<Item> {
+        private Item[] copy = items.clone();    // copy items as a new array
+        private int count = size();
+        @Override
+        public boolean hasNext() {
+            return count != 0;
+        }
+        @Override
+        public Item next() {
+            if(count == 0)  throw new java.util.NoSuchElementException();
+
+            int random = StdRandom.uniform(count);
+            Item temp = copy[random];           
+            if(temp != copy[count - 1])    copy[random] = copy[count - 1];
+            copy[count - 1] = null;
+            count--;
+            return temp;
+        }
+        @Override
+        public void remove() {
+            throw new java.lang.UnsupportedOperationException();
+        }
     }
 }
