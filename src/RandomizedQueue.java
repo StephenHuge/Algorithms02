@@ -1,32 +1,129 @@
-
-
+import java.io.File;
 import java.util.Iterator;
 
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdRandom;
+
 public class RandomizedQueue<Item> implements Iterable<Item> {
+
+    private Item[] items;
+    private int size = 0;
+    private Iterator<Item> iterator;
+
     public RandomizedQueue()                 // construct an empty randomized queue
-    {}
+    {
+        items = (Item[]) new Object[16];
+    }
     public boolean isEmpty()                 // is the randomized queue empty?
     {
-        return false;
+        return size() == 0;
     }
     public int size()                        // return the number of items on the randomized queue
     {
-        return -1;
+        return size;
+    }
+    /**
+     * resize the array with length capacity
+     */
+    private void resize(int capacity) 
+    {
+        Item[] copy = (Item[]) new Object[capacity];
+        for (int i = 0; i < size(); i++) 
+        {
+            copy[i] = items[i];
+        }
+        items = copy;
     }
     public void enqueue(Item item)           // add the item
-    {}
+    {
+        if (size() == items.length)  resize(2 * items.length);
+        items[size++] = item;
+    }
     public Item dequeue()                    // remove and return a random item
     {
-        return null;
+        validateGet();
+        int random = random();
+        Item temp = items[random];
+        if(random != size() - 1)    items[random] = items[size() - 1];  // to keep array whole    
+        items[size() - 1] = null; 
+        size--;
+        if(size() < items.length / 4)     resize(items.length / 2);
+        return temp;
     }
     public Item sample()                     // return a random item (but do not remove it)
     {
-        return null;
+        validateGet();
+        return items[random()];
+    }
+    /**
+     * get a random number for 0 to size - 1
+     */
+    private int random() 
+    {
+        int random = StdRandom.uniform(size());
+        //        System.out.println("random number: " + random);
+        return random;
+    }
+    /**
+     * to validate whether size of array is 0 when sample() or dequeue() is called,
+     * if it is, throw a exception
+     */
+    private void validateGet() {
+        if (size() == 0) throw new java.util.NoSuchElementException();
     }
     public Iterator<Item> iterator()         // return an independent iterator over items in random order
     {
-        return null;
+        if (iterator == null)   iterator = new MyIterator();
+        return iterator;
+    }
+    private class MyIterator implements Iterator<Item> {
+        private Item[] copy = items.clone();    // copy items as a new array
+        private int count = size();
+        @Override
+        public boolean hasNext() {
+            return count != 0;
+        }
+        @Override
+        public Item next() {
+            int random = StdRandom.uniform(count);
+            Item temp = copy[random];           
+            if(temp != copy[count - 1])    copy[random] = copy[count - 1];
+            copy[count - 1] = null;
+            count--;
+            return temp;
+        }
+        @Override
+        public void remove() {
+            throw new java.lang.UnsupportedOperationException();
+        }
     }
     public static void main(String[] args)   // unit testing (optional)
-    {}
- }
+    {
+        RandomizedQueue<String> rq = new RandomizedQueue<>();
+
+        //      In in = new In(new File("src/tinyTale.txt"));      // input file
+        In in = new In(new File("src/mediumTale.txt"));      // input file
+
+        while (!in.isEmpty()) {
+            String item = in.readString();
+            if (item == null)    break;
+            System.out.println("Input: " + item);
+            rq.enqueue(item);
+        }
+        //        int size = rq.size();
+        //        for (int i = 0; i < size; i++) 
+        //        {
+        //            System.out.print(rq.dequeue() + " ");
+        ////            rq.dequeue();
+        ////            System.out.println("size is " + rq.size());
+        //        }
+        Iterator<String> it = rq.iterator();
+        System.out.println("Iterating...");
+        System.out.println(it.hasNext());
+        while(it.hasNext()) {
+            System.out.print(it.next() + " ");
+        }
+        System.out.println();
+        System.out.println("Iterated.");
+    }
+}
