@@ -1,6 +1,3 @@
-
-
-import java.io.File;
 import java.util.Iterator;
 
 import edu.princeton.cs.algs4.In;
@@ -13,9 +10,7 @@ public class Deque<Item> implements Iterable<Item> {
     private Iterator<Item> iterator;
 
     public Deque()                           // construct an empty deque
-    {    
-//        iterator = new MyIterator();
-    }
+    {        }
     public boolean isEmpty()                 // is the deque empty?
     {
         return size() == 0;
@@ -37,7 +32,9 @@ public class Deque<Item> implements Iterable<Item> {
             head = new Node();
             head.item = item;
             head.next = oldHead;
+            oldHead.last = head;
         }
+        size++;
     }
     public void addLast(Item item)           // add the item to the end
     {
@@ -52,7 +49,9 @@ public class Deque<Item> implements Iterable<Item> {
             tail = new Node();
             tail.item = item;
             oldTail.next = tail;
+            tail.last = oldTail;
         }
+        size++;
     }
 
     /**
@@ -66,26 +65,28 @@ public class Deque<Item> implements Iterable<Item> {
     {
         validateRemove();
         Item item = head.item;
-        if (head.next == null) {
+        if (head.next == null || tail.last == null) {
             head = null;
             tail = null;
         } else {
             head = head.next;
             head.last = null;   // new head's last node must be null
         }
+        size--;
         return item;
     }
     public Item removeLast()                 // remove and return the item from the end
     {
         validateRemove();
         Item item = tail.item;
-        if (tail.last == null) {
+        if (head.next == null || tail.last == null) {
             tail = null;
             head = null;
         } else {
             tail = tail.last;
             tail.next = null;   // new tail's next node must be null
         }
+        size--;
         return item;
     }
     /**
@@ -98,9 +99,7 @@ public class Deque<Item> implements Iterable<Item> {
     }
     public Iterator<Item> iterator()         // return an iterator over items in order from front to end
     {
-        if (iterator == null) {
-            iterator = new MyIterator();
-        }
+        iterator = new MyIterator(head);
         return iterator;
     }
     public static void main(String[] args)   // unit testing (optional)
@@ -108,7 +107,8 @@ public class Deque<Item> implements Iterable<Item> {
         Deque<String> deque = new Deque<>();
         
 //        In in = new In(new File("src/tinyTale.txt"));      // input file
-        In in = new In(new File("src/mediumTale.txt"));      // input file
+//        In in = new In(new File("src/mediumTale.txt"));      // input file
+        In in = new In(args[0]);
         
         while (!in.isEmpty()) {
             String item = in.readString();
@@ -120,7 +120,7 @@ public class Deque<Item> implements Iterable<Item> {
         Iterator<String> it = deque.iterator();
         System.out.println("Iterating...");
 //        System.out.println(it.hasNext());
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             System.out.print(it.next() + " ");
         }
         System.out.println();
@@ -132,11 +132,15 @@ public class Deque<Item> implements Iterable<Item> {
      * 
      * @author HJS
      * 
-     * @date 2017年10月14日
+     * @date 2017-10-14
      * 
      */
     private class MyIterator implements Iterator<Item> {
-        private Node current = head;
+        private Node current = null;
+        public MyIterator(Node head)
+        {
+            this.current = head;
+        }
         @Override
         public boolean hasNext() {
             if (current == null) return false;
@@ -158,7 +162,7 @@ public class Deque<Item> implements Iterable<Item> {
      * a inner class Node for Deque
      * @author HJS
      * 
-     * @date 2017年10月14日
+     * @date 2017-10-14
      * 
      */
     private class Node {

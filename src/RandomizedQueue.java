@@ -1,4 +1,3 @@
-import java.io.File;
 import java.util.Iterator;
 
 import edu.princeton.cs.algs4.In;
@@ -45,17 +44,17 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      */
     private void validateAdd(Item item)
     {
-        if(item == null)    throw new java.lang.IllegalArgumentException();
+        if (item == null)    throw new java.lang.IllegalArgumentException();
     }
     public Item dequeue()                    // remove and return a random item
     {
         validateGet();
         int random = random();
         Item temp = items[random];
-        if(random != size() - 1)    items[random] = items[size() - 1];  // to keep array whole    
+        if (random != size() - 1)    items[random] = items[size() - 1];  // to keep array whole    
         items[size() - 1] = null; 
         size--;
-        if(size() < items.length / 4)     resize(items.length / 2);
+        if (size() < items.length / 4)     resize(items.length / 2);
         return temp;
     }
     public Item sample()                     // return a random item (but do not remove it)
@@ -81,7 +80,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }
     public Iterator<Item> iterator()         // return an independent iterator over items in random order
     {
-        if (iterator == null)   iterator = new MyIterator();
+        iterator = new MyIterator(items, size());
         return iterator;
     }
     public static void main(String[] args)   // unit testing (optional)
@@ -89,8 +88,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         RandomizedQueue<String> rq = new RandomizedQueue<>();
 
         //      In in = new In(new File("src/tinyTale.txt"));      // input file
-        In in = new In(new File("src/mediumTale.txt"));      // input file
+//        In in = new In(new File("src/mediumTale.txt"));      // input file
 
+        In in = new In(args[0]);
         while (!in.isEmpty()) {
             String item = in.readString();
             if (item == null)    break;
@@ -107,7 +107,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         Iterator<String> it = rq.iterator();
         System.out.println("Iterating...");
         System.out.println(it.hasNext());
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             System.out.print(it.next() + " ");
         }
         System.out.println();
@@ -118,23 +118,28 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
      * 
      * @author HJS
      * 
-     * @date 2017Äê10ÔÂ14ÈÕ
+     * @date 2017-10-14
      * 
      */
     private class MyIterator implements Iterator<Item> {
-        private Item[] copy = items.clone();    // copy items as a new array
-        private int count = size();
+        private Item[] copy = null;    // copy items as a new array
+        private int count = 0;
+        public MyIterator(Item[] items, int count)
+        {
+            this.copy = items.clone();
+            this.count = count;
+        }
         @Override
         public boolean hasNext() {
             return count != 0;
         }
         @Override
         public Item next() {
-            if(count == 0)  throw new java.util.NoSuchElementException();
+            if (count == 0)  throw new java.util.NoSuchElementException();
 
             int random = StdRandom.uniform(count);
             Item temp = copy[random];           
-            if(temp != copy[count - 1])    copy[random] = copy[count - 1];
+            if (temp != copy[count - 1])    copy[random] = copy[count - 1];
             copy[count - 1] = null;
             count--;
             return temp;
